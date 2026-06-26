@@ -30,6 +30,16 @@ const planoReportRows = document.querySelector('#planoReportRows');
 const exportOsButton = document.querySelector('#exportOsButton');
 const exportPlanoButton = document.querySelector('#exportPlanoButton');
 const exportAllButton = document.querySelector('#exportAllButton');
+const dashboardRows = document.querySelector('#dashboardRows');
+const typeSummary = document.querySelector('#typeSummary');
+const prioritySummary = document.querySelector('#prioritySummary');
+const statusDonut = document.querySelector('#statusDonut');
+const statusDonutValue = document.querySelector('#statusDonutValue');
+const typeDonut = document.querySelector('#typeDonut');
+const progressTrend = document.querySelector('#progressTrend');
+const nextDueRows = document.querySelector('#nextDueRows');
+const criticalRows = document.querySelector('#criticalRows');
+const doneRows = document.querySelector('#doneRows');
 const deleteDialog = document.querySelector('#deleteDialog');
 const deleteConfirmForm = document.querySelector('#deleteConfirmForm');
 const deleteDialogText = document.querySelector('#deleteDialogText');
@@ -122,6 +132,16 @@ function writeLocalRecords(key, records) {
   localStorage.setItem(key, JSON.stringify(records));
 }
 
+function seedLocalData() {
+  if (!window.AVANFISIO_SEED_DATA) return;
+  if (!localStorage.getItem('avanfisio_controle_os')) {
+    writeLocalRecords('avanfisio_controle_os', window.AVANFISIO_SEED_DATA.controle_os ?? []);
+  }
+  if (!localStorage.getItem('avanfisio_plano_estrategico')) {
+    writeLocalRecords('avanfisio_plano_estrategico', window.AVANFISIO_SEED_DATA.plano_estrategico ?? []);
+  }
+}
+
 function normalizeText(value) {
   return String(value ?? '').trim().toUpperCase();
 }
@@ -152,19 +172,157 @@ function renderSummaryList(elementId, summary) {
     : '<p class="muted">Nenhum registro preenchido ainda.</p>';
 }
 
+function renderBarSummary(elementId, summary) {
+  const element = document.querySelector(`#${elementId}`);
+  const entries = Object.entries(summary).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const max = Math.max(...entries.map((entry) => entry[1]), 1);
+
+  element.innerHTML = entries.length
+    ? entries.map(([label, count]) => `
+      <div class="bar-row">
+        <span>${escapeText(label)}</span>
+        <div class="bar-track"><i style="width: ${(count / max) * 100}%"></i></div>
+        <strong>${count}</strong>
+      </div>
+    `).join('')
+    : '<p class="muted">Nenhum registro preenchido ainda.</p>';
+}
+
+function toUnifiedRecord(record, type) {
+  if (type === 'os') {
+    return {
+      id: record.id,
+      code: record.numero_os,
+      unit: record.unidade,
+      type: 'O.S.',
+      description: record.descricao,
+      category: record.categoria,
+      responsible: record.responsavel || record.solicitante,
+      due: record.data_abertura,
+      progress: Number(record.percentual_avanco ?? 0),
+      status: record.status,
+      priority: record.prioridade,
+      created: record.created_at,
+    };
+  }
+
+  return {
+    id: record.id,
+    code: record.item,
+    unit: record.unidade,
+    type: 'Plano',
+    description: record.descricao_demanda,
+    category: record.categoria,
+    responsible: record.responsavel_a3v || record.responsavel_avanfisio,
+    due: record.previsao,
+    progress: Number(record.percentual_avanco ?? 0),
+    status: record.status,
+    priority: record.prioridade,
+    created: record.created_at,
+  };
+}
+
+function unifiedRecords() {
+  return [
+    ...osData.map((record) => toUnifiedRecord(record, 'os')),
+    ...planoData.map((record) => toUnifiedRecord(record, 'plano')),
+  ];
+}
+
+function renderDonut(element, summary) {
+  const colors = ['#0b6fb3', '#18a058', '#f59e0b', '#dc2626', '#6d28d9', '#64748b'];
+  const entries = Object.entries(summary).filter((entry) => entry[1] > 0);
+  const total = entries.reduce((sum, entry) => sum + entry[1], 0);
+  if (!total) {
+    element.style.setProperty('--donut', 'conic-gradient(#d9e8f5 0 100%)');
+    return;
+  }
+
+  let cursor = 0;
+  const stops = entries.map((entry, index) => {
+    const start = cursor;
+    cursor += (entry[1] / total) * 100;
+    return `${colors[index % colors.length]} ${start}% ${cursor}%`;
+  });
+  element.style.setProperty('--donut', `conic-gradient(${stops.join(', ')})`);
+}
+
+function renderTrend(records) {
+  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
+  const average = records.length
+    ? Math.round(records.reduce((sum, record) => sum + (Number(record.progress) || 0), 0) / records.length)
+    : 0;
+  const values = months.map((month, index) => Math.min(100, Math.max(0, average - ((months.length - index - 1) * 6))));
+
+  progressTrend.innerHTML = values.map((value, index) => `
+    <div class="trend-point">
+      <span style="height: ${Math.max(value, 6)}%"></span>
+      <strong>${value}%</strong>
+      <small>${months[index]}</small>
+    </div>
+  `).join('');
+}
+
+function renderMiniTable(element, records) {
+  element.innerHTML = records.length
+    ? records.map((record) => `
+      <div class="mini-row">
+        <strong>${escapeText(record.code)}</strong>
+        <span>${escapeText(record.description || record.category)}</span>
+        <em>${escapeText(record.unit)}</em>
+      </div>
+    `).join('')
+    : '<p class="muted">Sem registros para exibir.</p>';
+}
+
 function renderSummary() {
   const allRecords = [...osData, ...planoData];
+  const unified = unifiedRecords();
   const statuses = countBy(allRecords, 'status');
-  const units = countBy(allRecords, 'unidade');
+  const units = countBy(unified, 'unit');
+  const types = countBy(unified, 'type');
+  const priorities = countBy(unified, 'priority');
   const andamento = allRecords.filter((record) => normalizeText(record.status).includes('ANDAMENTO')).length;
   const atrasados = allRecords.filter((record) => normalizeText(record.status).includes('ATRAS')).length;
+  const concluidos = allRecords.filter((record) => normalizeText(record.status).includes('CONCL')).length;
 
   document.querySelector('#metricOsTotal').textContent = osData.length;
   document.querySelector('#metricPlanoTotal').textContent = planoData.length;
-  document.querySelector('#metricEmAndamento').textContent = andamento;
+  document.querySelector('#metricEmAndamento').textContent = concluidos;
   document.querySelector('#metricAtrasados').textContent = atrasados;
+  statusDonutValue.textContent = `${allRecords.length ? Math.round((concluidos / allRecords.length) * 100) : 0}%`;
   renderSummaryList('statusSummary', statuses);
-  renderSummaryList('unitSummary', units);
+  renderSummaryList('typeSummary', types);
+  renderBarSummary('unitSummary', units);
+  renderBarSummary('prioritySummary', priorities);
+  renderDonut(statusDonut, statuses);
+  renderDonut(typeDonut, types);
+  renderTrend(unified);
+  renderDashboardTable(unified);
+}
+
+function renderDashboardTable(records) {
+  const sorted = [...records].sort((a, b) => normalizeText(a.status).localeCompare(normalizeText(b.status))).slice(0, 80);
+  dashboardRows.innerHTML = sorted.length
+    ? sorted.map((record) => `
+      <tr>
+        <td>${escapeText(record.code)}</td>
+        <td>${escapeText(record.unit)}</td>
+        <td>${escapeText(record.type)}</td>
+        <td>${escapeText(record.description)}</td>
+        <td>${escapeText(record.category)}</td>
+        <td>${escapeText(record.responsible)}</td>
+        <td>${escapeText(record.due)}</td>
+        <td>${escapeText(formatProgress(record.progress))}</td>
+        <td>${escapeText(record.status)}</td>
+        <td>${escapeText(record.priority)}</td>
+      </tr>
+    `).join('')
+    : '<tr><td colspan="10">Nenhum registro encontrado.</td></tr>';
+
+  renderMiniTable(nextDueRows, records.filter((record) => !normalizeText(record.status).includes('CONCL')).slice(0, 5));
+  renderMiniTable(criticalRows, records.filter((record) => normalizeText(record.priority).includes('CRIT') || normalizeText(record.status).includes('ATRAS')).slice(0, 5));
+  renderMiniTable(doneRows, records.filter((record) => normalizeText(record.status).includes('CONCL')).slice(0, 5));
 }
 
 function matchesReportSearch(record, term) {
@@ -228,7 +386,17 @@ function tableToWorkbook(title, headers, rows) {
 
   return `
     <html>
-      <head><meta charset="utf-8"></head>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: Arial, sans-serif; color: #082f57; }
+          table { border-collapse: collapse; width: 100%; }
+          caption { background: #082f57; color: #fff; font-size: 18px; font-weight: 700; padding: 12px; text-align: left; }
+          th { background: #0b6fb3; color: #fff; border: 1px solid #c7d8e8; padding: 8px; text-transform: uppercase; font-size: 12px; }
+          td { border: 1px solid #d7e4f0; padding: 7px; font-size: 12px; vertical-align: top; }
+          tr:nth-child(even) td { background: #eef7ff; }
+        </style>
+      </head>
       <body>
         <table>
           <caption>${escapeText(title)}</caption>
@@ -708,4 +876,5 @@ planoForm.addEventListener('submit', async (event) => {
 });
 
 applyTheme(localStorage.getItem('avanfisio_theme') ?? 'light');
+seedLocalData();
 refreshSession();

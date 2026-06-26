@@ -29,6 +29,8 @@ Nesse modo demonstracao, os registros ficam salvos somente no navegador. Para vi
 - `styles.css`: layout responsivo para celular e PC.
 - `app.js`: login, cadastro, edicao e listagem.
 - `supabase-schema.sql`: tabelas, politicas de acesso e views para Power BI.
+- `supabase-seed.sql`: carga inicial gerada a partir das planilhas.
+- `seed-data.js`: carga inicial para o modo demonstracao do site.
 - `imagens/`: pasta das imagens do portal.
 
 ## Imagens do portal
@@ -43,11 +45,12 @@ O site ja esta apontando para estas imagens:
 
 1. Crie um projeto no Supabase.
 2. No Supabase, abra `SQL Editor` e execute o conteudo de `supabase-schema.sql`.
-3. Em `Authentication > Users`, crie os usuarios que poderao acessar.
-4. Em `Project Settings > API`, copie:
+3. Depois execute o conteudo de `supabase-seed.sql` para carregar os dados das planilhas no banco.
+4. Em `Authentication > Users`, crie os usuarios que poderao acessar.
+5. Em `Project Settings > API`, copie:
    - `Project URL`
    - `anon public key`
-5. Cole esses valores no inicio do arquivo `app.js`:
+6. Cole esses valores no inicio do arquivo `app.js`:
 
 ```js
 const SUPABASE_URL = 'SUA_PROJECT_URL';

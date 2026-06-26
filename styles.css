@@ -466,6 +466,60 @@ td button {
   gap: 14px;
 }
 
+.dashboard-panel {
+  gap: 12px;
+  padding: 12px;
+  background: #f8fbff;
+}
+
+body[data-theme="dark"] .dashboard-panel {
+  background: var(--panel);
+}
+
+.dashboard-hero {
+  display: grid;
+  grid-template-columns: 140px 1fr 110px;
+  align-items: center;
+  gap: 16px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #06285a, #083b7b);
+  color: #fff;
+  padding: 14px 18px;
+  text-align: center;
+}
+
+.dashboard-hero h2 {
+  color: #fff;
+  font-size: clamp(1rem, 2.4vw, 1.55rem);
+  text-transform: uppercase;
+}
+
+.dashboard-hero .eyebrow,
+.dashboard-hero span {
+  color: #dcecff;
+}
+
+.dashboard-logo,
+.dashboard-partner {
+  max-height: 58px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.dashboard-logo {
+  padding: 6px;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.compact-head {
+  padding: 4px 2px;
+}
+
+.executive-metrics {
+  grid-template-columns: repeat(4, minmax(150px, 1fr));
+}
+
 .metric-card,
 .insight-panel,
 .report-card {
@@ -477,8 +531,8 @@ td button {
 .metric-card {
   display: grid;
   gap: 8px;
-  min-height: 116px;
-  padding: 18px;
+  min-height: 104px;
+  padding: 14px;
   position: relative;
   overflow: hidden;
 }
@@ -502,8 +556,159 @@ td button {
 
 .metric-card strong {
   color: var(--navy);
-  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-size: clamp(1.8rem, 4vw, 2.7rem);
   line-height: 1;
+}
+
+.metric-card small {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.chart-card {
+  min-height: 230px;
+}
+
+.span-2 {
+  grid-column: span 2;
+}
+
+.donut-chart {
+  display: grid;
+  place-items: center;
+  width: 132px;
+  height: 132px;
+  margin: 4px auto 14px;
+  border-radius: 999px;
+  background: var(--donut);
+  position: relative;
+}
+
+.donut-chart::after {
+  content: "";
+  position: absolute;
+  inset: 24px;
+  border-radius: inherit;
+  background: var(--panel-strong);
+}
+
+.donut-chart span {
+  position: relative;
+  z-index: 1;
+  color: var(--navy);
+  font-weight: 800;
+  font-size: 1.25rem;
+}
+
+.small-donut {
+  width: 110px;
+  height: 110px;
+}
+
+.bar-list {
+  gap: 8px;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: minmax(92px, 1fr) 2fr auto;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.86rem;
+}
+
+.bar-track {
+  height: 14px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(102, 124, 145, 0.16);
+}
+
+.bar-track i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #0b6fb3, #18a058);
+}
+
+.trend-chart {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(36px, 1fr));
+  align-items: end;
+  gap: 10px;
+  height: 160px;
+  padding-top: 14px;
+}
+
+.trend-point {
+  display: grid;
+  grid-template-rows: 1fr auto auto;
+  align-items: end;
+  justify-items: center;
+  height: 100%;
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.trend-point span {
+  width: 12px;
+  border-radius: 999px 999px 0 0;
+  background: linear-gradient(180deg, #18a058, #0b6fb3);
+}
+
+.trend-point strong {
+  color: var(--navy);
+}
+
+.dashboard-table h3 {
+  margin-top: 0;
+}
+
+.dashboard-table table {
+  min-width: 1120px;
+}
+
+.dashboard-table th {
+  background: #06285a;
+  color: #fff;
+}
+
+.dashboard-table td {
+  font-size: 0.78rem;
+}
+
+.dashboard-bottom {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.mini-table {
+  display: grid;
+  gap: 8px;
+}
+
+.mini-row {
+  display: grid;
+  grid-template-columns: 70px 1fr 90px;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg-soft);
+  font-size: 0.8rem;
+}
+
+.mini-row em {
+  color: var(--muted);
+  font-style: normal;
+  text-align: right;
 }
 
 .insight-grid {
@@ -613,7 +818,17 @@ td button {
   }
 
   .metric-grid,
-  .insight-grid {
+  .insight-grid,
+  .dashboard-grid,
+  .dashboard-bottom {
+    grid-template-columns: 1fr;
+  }
+
+  .span-2 {
+    grid-column: auto;
+  }
+
+  .dashboard-hero {
     grid-template-columns: 1fr;
   }
 

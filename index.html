@@ -62,42 +62,110 @@
           <button class="tab" data-tab="relatorios" type="button">Relat&oacute;rios</button>
         </nav>
 
-        <section id="resumoPanel" class="panel is-hidden">
-          <div class="panel-head">
+        <section id="resumoPanel" class="panel dashboard-panel is-hidden">
+          <div class="dashboard-hero">
+            <img src="imagens/avanfisio.png" alt="Avanfisio" class="dashboard-logo">
+            <div>
+              <p class="eyebrow">SGOS-AV</p>
+              <h2>Sistema de gest&atilde;o de obras e servi&ccedil;os</h2>
+              <span>Painel executivo - vis&atilde;o geral</span>
+            </div>
+            <img src="imagens/n%20engenharia.png" alt="A3V Engenharia" class="dashboard-partner">
+          </div>
+
+          <div class="panel-head compact-head">
             <div>
               <h2>Resumo geral</h2>
-              <p class="muted">Vis&atilde;o r&aacute;pida de tudo que j&aacute; foi preenchido.</p>
+              <p class="muted">Indicadores consolidados das bases preenchidas.</p>
             </div>
             <button id="exportAllButton" class="secondary" type="button">Exportar tudo</button>
           </div>
 
-          <div class="metric-grid">
+          <div class="metric-grid executive-metrics">
             <article class="metric-card">
-              <span>Total de O.S.</span>
+              <span>Demandas em andamento</span>
               <strong id="metricOsTotal">0</strong>
+              <small>Controle de O.S.</small>
             </article>
             <article class="metric-card">
-              <span>Plano estrat&eacute;gico</span>
+              <span>Servi&ccedil;os em andamento</span>
               <strong id="metricPlanoTotal">0</strong>
+              <small>Plano estrat&eacute;gico</small>
             </article>
             <article class="metric-card">
-              <span>Em andamento</span>
+              <span>Conclu&iacute;dos</span>
               <strong id="metricEmAndamento">0</strong>
+              <small>Total nas duas bases</small>
             </article>
             <article class="metric-card">
               <span>Atrasados</span>
               <strong id="metricAtrasados">0</strong>
+              <small>Pend&ecirc;ncias cr&iacute;ticas</small>
             </article>
           </div>
 
-          <div class="insight-grid">
-            <article class="insight-panel">
-              <h3>Status dos controles</h3>
+          <div class="dashboard-grid">
+            <article class="insight-panel chart-card span-2">
+              <h3>Demandas por unidade</h3>
+              <div id="unitSummary" class="summary-list bar-list"></div>
+            </article>
+            <article class="insight-panel chart-card">
+              <h3>Status geral</h3>
+              <div id="statusDonut" class="donut-chart" style="--donut: conic-gradient(#d9e8f5 0 100%)">
+                <span id="statusDonutValue">0%</span>
+              </div>
               <div id="statusSummary" class="summary-list"></div>
             </article>
-            <article class="insight-panel">
-              <h3>Unidades com mais registros</h3>
-              <div id="unitSummary" class="summary-list"></div>
+            <article class="insight-panel chart-card">
+              <h3>Tipo de demanda</h3>
+              <div id="typeDonut" class="donut-chart small-donut" style="--donut: conic-gradient(#d9e8f5 0 100%)"></div>
+              <div id="typeSummary" class="summary-list"></div>
+            </article>
+            <article class="insight-panel chart-card span-2">
+              <h3>Evolu&ccedil;&atilde;o f&iacute;sica</h3>
+              <div id="progressTrend" class="trend-chart"></div>
+            </article>
+            <article class="insight-panel chart-card span-2">
+              <h3>Prioridade</h3>
+              <div id="prioritySummary" class="summary-list bar-list"></div>
+            </article>
+          </div>
+
+          <article class="report-card dashboard-table">
+            <h3>Banco de dados - obras e servi&ccedil;os</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>C&oacute;digo</th>
+                    <th>Unidade</th>
+                    <th>Tipo</th>
+                    <th>Descri&ccedil;&atilde;o</th>
+                    <th>Categoria</th>
+                    <th>Respons&aacute;vel</th>
+                    <th>Prazo</th>
+                    <th>Avan&ccedil;o</th>
+                    <th>Status</th>
+                    <th>Prioridade</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboardRows"></tbody>
+              </table>
+            </div>
+          </article>
+
+          <div class="dashboard-bottom">
+            <article class="report-card">
+              <h3>Pr&oacute;ximos vencimentos</h3>
+              <div id="nextDueRows" class="mini-table"></div>
+            </article>
+            <article class="report-card">
+              <h3>Obras cr&iacute;ticas</h3>
+              <div id="criticalRows" class="mini-table"></div>
+            </article>
+            <article class="report-card">
+              <h3>&Uacute;ltimas conclus&otilde;es</h3>
+              <div id="doneRows" class="mini-table"></div>
             </article>
           </div>
         </section>
@@ -292,6 +360,7 @@
       </form>
     </dialog>
 
+    <script src="seed-data.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
