@@ -123,7 +123,9 @@
             <label>Respons&aacute;vel<input name="responsavel"></label>
             <label>Prioridade<input name="prioridade"></label>
             <label>Status<input name="status"></label>
+            <label>Percentual de avan&ccedil;o<input name="percentual_avanco" type="number" min="0" max="100" step="1" placeholder="0 a 100"></label>
             <label class="wide">Descri&ccedil;&atilde;o<textarea name="descricao" rows="3"></textarea></label>
+            <label class="wide">Andamento / atualiza&ccedil;&atilde;o<textarea name="atualizacao_status" rows="3" placeholder="Descreva o avan&ccedil;o, ajuste de status ou pr&oacute;xima etapa..."></textarea></label>
             <label class="wide">Observa&ccedil;&atilde;o<textarea name="observacao" rows="3"></textarea></label>
             <div class="form-actions">
               <button type="submit">Salvar O.S.</button>
@@ -140,6 +142,7 @@
                   <th>Categoria</th>
                   <th>Prioridade</th>
                   <th>Status</th>
+                  <th>Avan&ccedil;o</th>
                   <th>A&ccedil;&atilde;o</th>
                 </tr>
               </thead>
@@ -169,8 +172,10 @@
             <label>Data da solicita&ccedil;&atilde;o<input name="data_solicitacao" type="date"></label>
             <label>Previs&atilde;o<input name="previsao" type="date"></label>
             <label>Status<input name="status"></label>
+            <label>Percentual de avan&ccedil;o<input name="percentual_avanco" type="number" min="0" max="100" step="1" placeholder="0 a 100"></label>
             <label class="wide">Descri&ccedil;&atilde;o da demanda<textarea name="descricao_demanda" rows="3"></textarea></label>
             <label class="wide">A&ccedil;&atilde;o<textarea name="acao" rows="3"></textarea></label>
+            <label class="wide">Andamento / atualiza&ccedil;&atilde;o<textarea name="atualizacao_status" rows="3" placeholder="Descreva o avan&ccedil;o, pend&ecirc;ncia ou pr&oacute;xima etapa..."></textarea></label>
             <label class="wide">Observa&ccedil;&otilde;es<textarea name="observacoes" rows="3"></textarea></label>
             <div class="form-actions">
               <button type="submit">Salvar plano</button>
@@ -187,6 +192,7 @@
                   <th>Categoria</th>
                   <th>Prioridade</th>
                   <th>Status</th>
+                  <th>Avan&ccedil;o</th>
                   <th>A&ccedil;&atilde;o</th>
                 </tr>
               </thead>
@@ -228,6 +234,8 @@
                       <th>Categoria</th>
                       <th>Prioridade</th>
                       <th>Status</th>
+                      <th>Avan&ccedil;o</th>
+                      <th>Excluir</th>
                     </tr>
                   </thead>
                   <tbody id="osReportRows"></tbody>
@@ -248,6 +256,8 @@
                       <th>Prioridade</th>
                       <th>Previs&atilde;o</th>
                       <th>Status</th>
+                      <th>Avan&ccedil;o</th>
+                      <th>Excluir</th>
                     </tr>
                   </thead>
                   <tbody id="planoReportRows"></tbody>
@@ -258,6 +268,29 @@
         </section>
       </section>
     </main>
+
+    <dialog id="deleteDialog" class="delete-dialog">
+      <form id="deleteConfirmForm" method="dialog" class="delete-box">
+        <div>
+          <p class="eyebrow">Confirma&ccedil;&atilde;o obrigat&oacute;ria</p>
+          <h2>Apagar registro</h2>
+          <p id="deleteDialogText" class="muted">Informe usu&aacute;rio e senha para confirmar.</p>
+        </div>
+        <label>
+          Usu&aacute;rio
+          <input id="deleteUser" name="deleteUser" type="text" autocomplete="username" required>
+        </label>
+        <label>
+          Senha
+          <input id="deletePassword" name="deletePassword" type="password" autocomplete="current-password" required>
+        </label>
+        <p id="deleteMessage" class="message"></p>
+        <div class="dialog-actions">
+          <button id="cancelDeleteButton" class="secondary" type="button">Cancelar</button>
+          <button class="danger" type="submit">Apagar definitivo</button>
+        </div>
+      </form>
+    </dialog>
 
     <script src="app.js"></script>
   </body>

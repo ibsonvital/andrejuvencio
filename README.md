@@ -13,6 +13,16 @@ Senha: 123456
 
 Nesse modo demonstracao, os registros ficam salvos somente no navegador. Para virar sistema real com banco de dados e Power BI, configure o Supabase no `app.js`.
 
+## Funcoes do sistema
+
+- Cadastro e edicao de O.S.
+- Cadastro e edicao do plano estrategico.
+- Campo de status, percentual de avanco e andamento/atualizacao para cada registro.
+- Relatorios com busca.
+- Exportacao para Excel.
+- Exclusao de registros com confirmacao por usuario e senha.
+- Modo claro e modo escuro.
+
 ## Arquivos
 
 - `index.html`: tela de login, abas e formularios.
@@ -45,6 +55,8 @@ const SUPABASE_ANON_KEY = 'SUA_ANON_PUBLIC_KEY';
 ```
 
 Depois disso, o login passa a ser o usuario e senha criados no Supabase.
+
+Atencao: a chave publishable ja foi colocada no `app.js`, mas ainda falta trocar `COLE_AQUI_A_URL_DO_SUPABASE` pela `Project URL` do Supabase.
 
 ## Power BI
 

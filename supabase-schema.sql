@@ -13,6 +13,8 @@ create table if not exists public.controle_os (
   responsavel text,
   prioridade text,
   status text,
+  percentual_avanco numeric,
+  atualizacao_status text,
   observacao text,
   created_by uuid references auth.users(id),
   created_at timestamptz not null default now(),
@@ -34,6 +36,8 @@ create table if not exists public.plano_estrategico (
   previsao date,
   observacoes text,
   status text,
+  percentual_avanco numeric,
+  atualizacao_status text,
   created_by uuid references auth.users(id),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -79,6 +83,12 @@ to authenticated
 using (true)
 with check (true);
 
+drop policy if exists "controle_os_delete_auth" on public.controle_os;
+create policy "controle_os_delete_auth"
+on public.controle_os for delete
+to authenticated
+using (true);
+
 drop policy if exists "plano_select_auth" on public.plano_estrategico;
 create policy "plano_select_auth"
 on public.plano_estrategico for select
@@ -98,6 +108,12 @@ to authenticated
 using (true)
 with check (true);
 
+drop policy if exists "plano_delete_auth" on public.plano_estrategico;
+create policy "plano_delete_auth"
+on public.plano_estrategico for delete
+to authenticated
+using (true);
+
 create or replace view public.vw_controle_os_powerbi as
 select
   numero_os,
@@ -111,6 +127,8 @@ select
   responsavel,
   prioridade,
   status,
+  percentual_avanco,
+  atualizacao_status,
   observacao,
   created_at,
   updated_at
@@ -131,6 +149,8 @@ select
   previsao,
   observacoes,
   status,
+  percentual_avanco,
+  atualizacao_status,
   created_at,
   updated_at
 from public.plano_estrategico;

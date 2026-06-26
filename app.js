@@ -1,5 +1,5 @@
 const SUPABASE_URL = 'COLE_AQUI_A_URL_DO_SUPABASE';
-const SUPABASE_ANON_KEY = 'COLE_AQUI_A_CHAVE_ANON_PUBLIC';
+const SUPABASE_ANON_KEY = 'sb_publishable_XkyUMK06RemURsFy-aVDTw_IZ8HTsPS';
 const DEMO_USER = 'andre';
 const DEMO_PASSWORD = '123456';
 
@@ -30,10 +30,18 @@ const planoReportRows = document.querySelector('#planoReportRows');
 const exportOsButton = document.querySelector('#exportOsButton');
 const exportPlanoButton = document.querySelector('#exportPlanoButton');
 const exportAllButton = document.querySelector('#exportAllButton');
+const deleteDialog = document.querySelector('#deleteDialog');
+const deleteConfirmForm = document.querySelector('#deleteConfirmForm');
+const deleteDialogText = document.querySelector('#deleteDialogText');
+const deleteUser = document.querySelector('#deleteUser');
+const deletePassword = document.querySelector('#deletePassword');
+const deleteMessage = document.querySelector('#deleteMessage');
+const cancelDeleteButton = document.querySelector('#cancelDeleteButton');
 
 let currentUser = null;
 let osData = [];
 let planoData = [];
+let pendingDelete = null;
 
 const osFields = [
   'id',
@@ -48,6 +56,8 @@ const osFields = [
   'responsavel',
   'prioridade',
   'status',
+  'percentual_avanco',
+  'atualizacao_status',
   'observacao',
 ];
 
@@ -66,6 +76,8 @@ const planoFields = [
   'previsao',
   'observacoes',
   'status',
+  'percentual_avanco',
+  'atualizacao_status',
 ];
 
 function setMessage(element, text, isError = false) {
@@ -175,9 +187,11 @@ function renderReports() {
         <td>${escapeText(record.categoria)}</td>
         <td>${escapeText(record.prioridade)}</td>
         <td>${escapeText(record.status)}</td>
+        <td>${escapeText(formatProgress(record.percentual_avanco))}</td>
+        <td><button class="danger subtle" data-delete-os="${record.id}" type="button">Apagar</button></td>
       </tr>
     `).join('')
-    : '<tr><td colspan="7">Nenhum registro encontrado.</td></tr>';
+    : '<tr><td colspan="9">Nenhum registro encontrado.</td></tr>';
 
   planoReportRows.innerHTML = filteredPlano.length
     ? filteredPlano.map((record) => `
@@ -189,14 +203,21 @@ function renderReports() {
         <td>${escapeText(record.prioridade)}</td>
         <td>${escapeText(record.previsao)}</td>
         <td>${escapeText(record.status)}</td>
+        <td>${escapeText(formatProgress(record.percentual_avanco))}</td>
+        <td><button class="danger subtle" data-delete-plano="${record.id}" type="button">Apagar</button></td>
       </tr>
     `).join('')
-    : '<tr><td colspan="7">Nenhum registro encontrado.</td></tr>';
+    : '<tr><td colspan="9">Nenhum registro encontrado.</td></tr>';
 }
 
 function renderDashboard() {
   renderSummary();
   renderReports();
+}
+
+function formatProgress(value) {
+  if (value === null || value === undefined || value === '') return '';
+  return `${value}%`;
 }
 
 function tableToWorkbook(title, headers, rows) {
@@ -242,6 +263,8 @@ function exportOs() {
     { key: 'responsavel', label: 'Responsavel' },
     { key: 'prioridade', label: 'Prioridade' },
     { key: 'status', label: 'Status' },
+    { key: 'percentual_avanco', label: 'Percentual de avanco' },
+    { key: 'atualizacao_status', label: 'Andamento / atualizacao' },
     { key: 'observacao', label: 'Observacao' },
   ];
   const workbook = tableToWorkbook('Controle de O.S.', headers, osData);
@@ -263,6 +286,8 @@ function exportPlano() {
     { key: 'previsao', label: 'Previsao' },
     { key: 'observacoes', label: 'Observacoes' },
     { key: 'status', label: 'Status' },
+    { key: 'percentual_avanco', label: 'Percentual de avanco' },
+    { key: 'atualizacao_status', label: 'Andamento / atualizacao' },
   ];
   const workbook = tableToWorkbook('Plano estrategico', headers, planoData);
   downloadExcel('plano-estrategico-avanfisio.xls', workbook);
@@ -277,6 +302,67 @@ function applyTheme(theme) {
   document.body.dataset.theme = theme;
   themeToggle.textContent = theme === 'dark' ? 'Modo claro' : 'Modo escuro';
   localStorage.setItem('avanfisio_theme', theme);
+}
+
+function getRecordLabel(type, record) {
+  if (type === 'os') return `O.S. ${record?.numero_os ?? ''}`.trim();
+  return `item ${record?.item ?? ''}`.trim();
+}
+
+function requestDelete(type, id) {
+  const source = type === 'os' ? osData : planoData;
+  const record = source.find((item) => item.id === id);
+  if (!record) return;
+
+  pendingDelete = { type, id };
+  deleteDialogText.textContent = `Para apagar ${getRecordLabel(type, record)}, confirme seu usuario e senha. Essa acao nao pode ser desfeita.`;
+  deleteConfirmForm.reset();
+  setMessage(deleteMessage, '');
+  deleteDialog.showModal();
+  deleteUser.focus();
+}
+
+async function validateDeleteCredentials(username, password) {
+  if (!clientReady) {
+    return username.trim().toLowerCase() === DEMO_USER && password === DEMO_PASSWORD;
+  }
+
+  const { error } = await supabaseClient.auth.signInWithPassword({
+    email: username.trim(),
+    password,
+  });
+  return !error;
+}
+
+async function deleteRecord(type, id) {
+  if (!clientReady) {
+    const key = type === 'os' ? 'avanfisio_controle_os' : 'avanfisio_plano_estrategico';
+    const records = readLocalRecords(key).filter((record) => record.id !== id);
+    writeLocalRecords(key, records);
+    if (type === 'os') {
+      osForm.reset();
+      await loadOs();
+    } else {
+      planoForm.reset();
+      await loadPlano();
+    }
+    renderDashboard();
+    return null;
+  }
+
+  const table = type === 'os' ? 'controle_os' : 'plano_estrategico';
+  const { error } = await supabaseClient.from(table).delete().eq('id', id);
+  if (error) return error;
+
+  if (type === 'os') {
+    osForm.reset();
+    await loadOs();
+  } else {
+    planoForm.reset();
+    await loadPlano();
+  }
+  renderDashboard();
+  return null;
 }
 
 async function refreshSession() {
@@ -314,7 +400,11 @@ async function loadOs() {
         <td>${escapeText(record.categoria)}</td>
         <td>${escapeText(record.prioridade)}</td>
         <td>${escapeText(record.status)}</td>
-        <td><button class="secondary" data-edit-os="${record.id}" type="button">Editar</button></td>
+        <td>${escapeText(formatProgress(record.percentual_avanco))}</td>
+        <td class="row-actions">
+          <button class="secondary" data-edit-os="${record.id}" type="button">Editar</button>
+          <button class="danger subtle" data-delete-os="${record.id}" type="button">Apagar</button>
+        </td>
       </tr>
     `).join('');
     renderDashboard();
@@ -339,7 +429,11 @@ async function loadOs() {
       <td>${escapeText(record.categoria)}</td>
       <td>${escapeText(record.prioridade)}</td>
       <td>${escapeText(record.status)}</td>
-      <td><button class="secondary" data-edit-os="${record.id}" type="button">Editar</button></td>
+      <td>${escapeText(formatProgress(record.percentual_avanco))}</td>
+      <td class="row-actions">
+        <button class="secondary" data-edit-os="${record.id}" type="button">Editar</button>
+        <button class="danger subtle" data-delete-os="${record.id}" type="button">Apagar</button>
+      </td>
     </tr>
   `).join('');
   renderDashboard();
@@ -355,7 +449,11 @@ async function loadPlano() {
         <td>${escapeText(record.categoria)}</td>
         <td>${escapeText(record.prioridade)}</td>
         <td>${escapeText(record.status)}</td>
-        <td><button class="secondary" data-edit-plano="${record.id}" type="button">Editar</button></td>
+        <td>${escapeText(formatProgress(record.percentual_avanco))}</td>
+        <td class="row-actions">
+          <button class="secondary" data-edit-plano="${record.id}" type="button">Editar</button>
+          <button class="danger subtle" data-delete-plano="${record.id}" type="button">Apagar</button>
+        </td>
       </tr>
     `).join('');
     renderDashboard();
@@ -380,7 +478,11 @@ async function loadPlano() {
       <td>${escapeText(record.categoria)}</td>
       <td>${escapeText(record.prioridade)}</td>
       <td>${escapeText(record.status)}</td>
-      <td><button class="secondary" data-edit-plano="${record.id}" type="button">Editar</button></td>
+      <td>${escapeText(formatProgress(record.percentual_avanco))}</td>
+      <td class="row-actions">
+        <button class="secondary" data-edit-plano="${record.id}" type="button">Editar</button>
+        <button class="danger subtle" data-delete-plano="${record.id}" type="button">Apagar</button>
+      </td>
     </tr>
   `).join('');
   renderDashboard();
@@ -463,6 +565,12 @@ newPlanoButton.addEventListener('click', () => {
 });
 
 osRows.addEventListener('click', (event) => {
+  const deleteId = event.target.dataset.deleteOs;
+  if (deleteId) {
+    requestDelete('os', deleteId);
+    return;
+  }
+
   const id = event.target.dataset.editOs;
   if (!id) return;
   fillForm(osForm, osFields, osData.find((record) => record.id === id));
@@ -470,10 +578,53 @@ osRows.addEventListener('click', (event) => {
 });
 
 planoRows.addEventListener('click', (event) => {
+  const deleteId = event.target.dataset.deletePlano;
+  if (deleteId) {
+    requestDelete('plano', deleteId);
+    return;
+  }
+
   const id = event.target.dataset.editPlano;
   if (!id) return;
   fillForm(planoForm, planoFields, planoData.find((record) => record.id === id));
   window.scrollTo({ top: planoForm.offsetTop - 20, behavior: 'smooth' });
+});
+
+osReportRows.addEventListener('click', (event) => {
+  const deleteId = event.target.dataset.deleteOs;
+  if (deleteId) requestDelete('os', deleteId);
+});
+
+planoReportRows.addEventListener('click', (event) => {
+  const deleteId = event.target.dataset.deletePlano;
+  if (deleteId) requestDelete('plano', deleteId);
+});
+
+cancelDeleteButton.addEventListener('click', () => {
+  pendingDelete = null;
+  deleteDialog.close();
+});
+
+deleteConfirmForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  if (!pendingDelete) return;
+
+  setMessage(deleteMessage, 'Conferindo usuario e senha...');
+  const allowed = await validateDeleteCredentials(deleteUser.value, deletePassword.value);
+  if (!allowed) {
+    setMessage(deleteMessage, 'Usuario ou senha invalido. Registro nao apagado.', true);
+    return;
+  }
+
+  setMessage(deleteMessage, 'Apagando registro...');
+  const error = await deleteRecord(pendingDelete.type, pendingDelete.id);
+  if (error) {
+    setMessage(deleteMessage, error.message, true);
+    return;
+  }
+
+  pendingDelete = null;
+  deleteDialog.close();
 });
 
 osForm.addEventListener('submit', async (event) => {
