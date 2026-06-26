@@ -1,4 +1,4 @@
-const SUPABASE_URL = 'COLE_AQUI_A_URL_DO_SUPABASE';
+const SUPABASE_URL = 'https://qlaukoinddghygpqromk.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_XkyUMK06RemURsFy-aVDTw_IZ8HTsPS';
 const DEMO_USER = 'andre';
 const DEMO_PASSWORD = '123456';
@@ -279,25 +279,34 @@ function renderSummary() {
   const allRecords = [...osData, ...planoData];
   const unified = unifiedRecords();
   const statuses = countBy(allRecords, 'status');
+  const osStatuses = countBy(osData, 'status');
+  const planoStatuses = countBy(planoData, 'status');
   const units = countBy(unified, 'unit');
   const types = countBy(unified, 'type');
   const priorities = countBy(unified, 'priority');
-  const andamento = allRecords.filter((record) => normalizeText(record.status).includes('ANDAMENTO')).length;
+  const osAndamento = osData.filter((record) => normalizeText(record.status).includes('ANDAMENTO')).length;
+  const planoAndamento = planoData.filter((record) => normalizeText(record.status).includes('ANDAMENTO')).length;
   const atrasados = allRecords.filter((record) => normalizeText(record.status).includes('ATRAS')).length;
   const concluidos = allRecords.filter((record) => normalizeText(record.status).includes('CONCL')).length;
 
   document.querySelector('#metricOsTotal').textContent = osData.length;
   document.querySelector('#metricPlanoTotal').textContent = planoData.length;
+  document.querySelector('#metricOsOpen').textContent = `${osAndamento} em andamento`;
+  document.querySelector('#metricPlanoOpen').textContent = `${planoAndamento} em andamento`;
   document.querySelector('#metricEmAndamento').textContent = concluidos;
   document.querySelector('#metricAtrasados').textContent = atrasados;
-  statusDonutValue.textContent = `${allRecords.length ? Math.round((concluidos / allRecords.length) * 100) : 0}%`;
   renderSummaryList('statusSummary', statuses);
+  renderSummaryList('osStatusSummary', osStatuses);
+  renderSummaryList('planoStatusSummary', planoStatuses);
   renderSummaryList('typeSummary', types);
   renderBarSummary('unitSummary', units);
   renderBarSummary('prioritySummary', priorities);
-  renderDonut(statusDonut, statuses);
-  renderDonut(typeDonut, types);
-  renderTrend(unified);
+  if (statusDonut && statusDonutValue) {
+    statusDonutValue.textContent = `${allRecords.length ? Math.round((concluidos / allRecords.length) * 100) : 0}%`;
+    renderDonut(statusDonut, statuses);
+  }
+  if (typeDonut) renderDonut(typeDonut, types);
+  if (progressTrend) renderTrend(unified);
   renderDashboardTable(unified);
 }
 

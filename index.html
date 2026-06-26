@@ -83,14 +83,14 @@
 
           <div class="metric-grid executive-metrics">
             <article class="metric-card">
-              <span>Demandas em andamento</span>
+              <span>O.S. cadastradas</span>
               <strong id="metricOsTotal">0</strong>
-              <small>Controle de O.S.</small>
+              <small id="metricOsOpen">0 em andamento</small>
             </article>
             <article class="metric-card">
-              <span>Servi&ccedil;os em andamento</span>
+              <span>Plano estrat&eacute;gico</span>
               <strong id="metricPlanoTotal">0</strong>
-              <small>Plano estrat&eacute;gico</small>
+              <small id="metricPlanoOpen">0 em andamento</small>
             </article>
             <article class="metric-card">
               <span>Conclu&iacute;dos</span>
@@ -104,30 +104,39 @@
             </article>
           </div>
 
-          <div class="dashboard-grid">
-            <article class="insight-panel chart-card span-2">
-              <h3>Demandas por unidade</h3>
+          <div class="split-summary">
+            <article class="insight-panel">
+              <h3>Controle de O.S.</h3>
+              <div id="osStatusSummary" class="summary-list"></div>
+            </article>
+            <article class="insight-panel">
+              <h3>Plano estrat&eacute;gico</h3>
+              <div id="planoStatusSummary" class="summary-list"></div>
+            </article>
+          </div>
+
+          <div class="project-grid">
+            <article class="insight-panel project-card">
+              <p class="eyebrow">Projeto 1</p>
+              <h3>Planilha de Controle de O.S.</h3>
+              <p class="muted">Resumo separado da base operacional de ordens de servi&ccedil;o.</p>
               <div id="unitSummary" class="summary-list bar-list"></div>
             </article>
-            <article class="insight-panel chart-card">
-              <h3>Status geral</h3>
-              <div id="statusDonut" class="donut-chart" style="--donut: conic-gradient(#d9e8f5 0 100%)">
-                <span id="statusDonutValue">0%</span>
-              </div>
+            <article class="insight-panel project-card">
+              <p class="eyebrow">Projeto 2</p>
+              <h3>Plano Estrat&eacute;gico Avanfisio 2026</h3>
+              <p class="muted">Resumo separado das demandas estrat&eacute;gicas por unidade, prioridade e status.</p>
+              <div id="prioritySummary" class="summary-list bar-list"></div>
+            </article>
+            <article class="insight-panel project-card">
+              <h3>Status consolidado</h3>
+              <p class="muted">Vis&atilde;o executiva sem misturar a edi&ccedil;&atilde;o dos projetos.</p>
               <div id="statusSummary" class="summary-list"></div>
             </article>
-            <article class="insight-panel chart-card">
-              <h3>Tipo de demanda</h3>
-              <div id="typeDonut" class="donut-chart small-donut" style="--donut: conic-gradient(#d9e8f5 0 100%)"></div>
+            <article class="insight-panel project-card">
+              <h3>Tipo de base</h3>
+              <p class="muted">Separando o que veio de O.S. e o que veio do plano.</p>
               <div id="typeSummary" class="summary-list"></div>
-            </article>
-            <article class="insight-panel chart-card span-2">
-              <h3>Evolu&ccedil;&atilde;o f&iacute;sica</h3>
-              <div id="progressTrend" class="trend-chart"></div>
-            </article>
-            <article class="insight-panel chart-card span-2">
-              <h3>Prioridade</h3>
-              <div id="prioritySummary" class="summary-list bar-list"></div>
             </article>
           </div>
 

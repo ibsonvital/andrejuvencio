@@ -788,6 +788,69 @@ body[data-theme="dark"] .dashboard-panel {
   gap: 10px;
 }
 
+.project-grid,
+.split-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.project-card {
+  min-height: 220px;
+}
+
+body[data-theme="dark"] {
+  --muted: #d2e4f3;
+  --panel: #102d46;
+  --panel-strong: #173c5a;
+  --line: #3d6b8c;
+}
+
+body[data-theme="dark"] label,
+body[data-theme="dark"] .summary-row strong,
+body[data-theme="dark"] .bar-row span,
+body[data-theme="dark"] .bar-row strong,
+body[data-theme="dark"] .metric-card span,
+body[data-theme="dark"] .metric-card small {
+  color: #e6f4ff;
+}
+
+body[data-theme="dark"] input,
+body[data-theme="dark"] textarea {
+  border-color: #4b7899;
+  background: #173f5f;
+  color: #ffffff;
+}
+
+body[data-theme="dark"] input::placeholder,
+body[data-theme="dark"] textarea::placeholder {
+  color: #c6d9eb;
+  opacity: 1;
+}
+
+body[data-theme="dark"] input[type="date"] {
+  color-scheme: dark;
+}
+
+body[data-theme="dark"] .muted,
+body[data-theme="dark"] .message,
+body[data-theme="dark"] .user-email {
+  color: #d2e4f3;
+}
+
+body[data-theme="dark"] .tab.is-active {
+  color: #061321;
+  text-shadow: none;
+}
+
+body[data-theme="dark"] th {
+  color: #f8fcff;
+}
+
+body[data-theme="dark"] .dashboard-table th {
+  background: #061b36;
+}
+
 @media (max-width: 820px) {
   .auth-panel,
   .record-form {
@@ -819,6 +882,8 @@ body[data-theme="dark"] .dashboard-panel {
 
   .metric-grid,
   .insight-grid,
+  .project-grid,
+  .split-summary,
   .dashboard-grid,
   .dashboard-bottom {
     grid-template-columns: 1fr;
