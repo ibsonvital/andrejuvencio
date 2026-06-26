@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Controle Avanfisio</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <main class="shell">
+      <section id="loginView" class="auth-panel">
+        <div class="brand-side">
+          <div class="logo-row">
+            <img src="imagens/avanfisio.png" alt="Avanfisio" class="brand-logo avanfisio-logo">
+            <img src="imagens/n%20engenharia.png" alt="A3V Engenharia" class="brand-logo partner-logo">
+          </div>
+          <p class="eyebrow">Controle Avanfisio</p>
+          <h1>Portal de preenchimento</h1>
+          <p class="muted">Acesso online aos controles operacionais e estrat&eacute;gicos da Avanfisio.</p>
+        </div>
+
+        <form id="loginForm" class="form-grid">
+          <div class="login-profile">
+            <img src="imagens/andre.jfif" alt="Andr&eacute; Juvencio">
+            <strong>OL&Aacute; ANDR&Eacute; JUVENCIO</strong>
+          </div>
+          <label>
+            Usu&aacute;rio
+            <input id="email" name="email" type="text" autocomplete="username" required>
+          </label>
+          <label>
+            Senha
+            <input id="password" name="password" type="password" autocomplete="current-password" required>
+          </label>
+          <button type="submit">Entrar</button>
+          <p id="loginMessage" class="message"></p>
+        </form>
+      </section>
+
+      <section id="appView" class="app is-hidden">
+        <header class="topbar">
+          <div class="app-brand">
+            <img src="imagens/avanfisio.png" alt="Avanfisio" class="brand-logo small">
+            <img src="imagens/n%20engenharia.png" alt="A3V Engenharia" class="brand-logo small partner">
+            <div>
+              <p class="eyebrow">Controle Avanfisio</p>
+              <h1>Bases online</h1>
+            </div>
+          </div>
+          <div class="topbar-actions">
+            <span id="userEmail" class="user-email"></span>
+            <button id="themeToggle" class="secondary icon-button" type="button" aria-label="Alternar modo claro e escuro">Modo escuro</button>
+            <button id="logoutButton" class="secondary" type="button">Sair</button>
+          </div>
+        </header>
+
+        <nav class="tabs" aria-label="Controles">
+          <button class="tab" data-tab="resumo" type="button">Resumo</button>
+          <button class="tab is-active" data-tab="os" type="button">Controle de O.S.</button>
+          <button class="tab" data-tab="plano" type="button">Plano estrat&eacute;gico</button>
+          <button class="tab" data-tab="relatorios" type="button">Relat&oacute;rios</button>
+        </nav>
+
+        <section id="resumoPanel" class="panel is-hidden">
+          <div class="panel-head">
+            <div>
+              <h2>Resumo geral</h2>
+              <p class="muted">Vis&atilde;o r&aacute;pida de tudo que j&aacute; foi preenchido.</p>
+            </div>
+            <button id="exportAllButton" class="secondary" type="button">Exportar tudo</button>
+          </div>
+
+          <div class="metric-grid">
+            <article class="metric-card">
+              <span>Total de O.S.</span>
+              <strong id="metricOsTotal">0</strong>
+            </article>
+            <article class="metric-card">
+              <span>Plano estrat&eacute;gico</span>
+              <strong id="metricPlanoTotal">0</strong>
+            </article>
+            <article class="metric-card">
+              <span>Em andamento</span>
+              <strong id="metricEmAndamento">0</strong>
+            </article>
+            <article class="metric-card">
+              <span>Atrasados</span>
+              <strong id="metricAtrasados">0</strong>
+            </article>
+          </div>
+
+          <div class="insight-grid">
+            <article class="insight-panel">
+              <h3>Status dos controles</h3>
+              <div id="statusSummary" class="summary-list"></div>
+            </article>
+            <article class="insight-panel">
+              <h3>Unidades com mais registros</h3>
+              <div id="unitSummary" class="summary-list"></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="osPanel" class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Controle de O.S.</h2>
+              <p class="muted">Campos baseados na planilha &ldquo;PLANILHA DE CONTROLE DE O.S.&rdquo;.</p>
+            </div>
+            <button id="newOsButton" class="secondary" type="button">Novo registro</button>
+          </div>
+
+          <form id="osForm" class="record-form">
+            <input type="hidden" name="id">
+            <label>O.S.<input name="numero_os" required></label>
+            <label>Data de abertura<input name="data_abertura" type="date"></label>
+            <label>Unidade<input name="unidade"></label>
+            <label>Solicitante<input name="solicitante"></label>
+            <label>Ambiente<input name="ambiente"></label>
+            <label>Classifica&ccedil;&atilde;o<input name="classificacao"></label>
+            <label>Categoria<input name="categoria"></label>
+            <label>Respons&aacute;vel<input name="responsavel"></label>
+            <label>Prioridade<input name="prioridade"></label>
+            <label>Status<input name="status"></label>
+            <label class="wide">Descri&ccedil;&atilde;o<textarea name="descricao" rows="3"></textarea></label>
+            <label class="wide">Observa&ccedil;&atilde;o<textarea name="observacao" rows="3"></textarea></label>
+            <div class="form-actions">
+              <button type="submit">Salvar O.S.</button>
+              <p id="osMessage" class="message"></p>
+            </div>
+          </form>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>O.S.</th>
+                  <th>Unidade</th>
+                  <th>Categoria</th>
+                  <th>Prioridade</th>
+                  <th>Status</th>
+                  <th>A&ccedil;&atilde;o</th>
+                </tr>
+              </thead>
+              <tbody id="osRows"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="planoPanel" class="panel is-hidden">
+          <div class="panel-head">
+            <div>
+              <h2>Plano estrat&eacute;gico</h2>
+              <p class="muted">Campos baseados na planilha &ldquo;PLANO ESTRAT&Eacute;GICO AVANFISIO 2026 V7&rdquo;.</p>
+            </div>
+            <button id="newPlanoButton" class="secondary" type="button">Novo registro</button>
+          </div>
+
+          <form id="planoForm" class="record-form">
+            <input type="hidden" name="id">
+            <label>Item<input name="item" required></label>
+            <label>Unidade<input name="unidade"></label>
+            <label>Pr&eacute;dio<input name="predio"></label>
+            <label>Categoria<input name="categoria"></label>
+            <label>Prioridade<input name="prioridade"></label>
+            <label>Respons&aacute;vel A3V<input name="responsavel_a3v"></label>
+            <label>Respons&aacute;vel Avanfisio<input name="responsavel_avanfisio"></label>
+            <label>Data da solicita&ccedil;&atilde;o<input name="data_solicitacao" type="date"></label>
+            <label>Previs&atilde;o<input name="previsao" type="date"></label>
+            <label>Status<input name="status"></label>
+            <label class="wide">Descri&ccedil;&atilde;o da demanda<textarea name="descricao_demanda" rows="3"></textarea></label>
+            <label class="wide">A&ccedil;&atilde;o<textarea name="acao" rows="3"></textarea></label>
+            <label class="wide">Observa&ccedil;&otilde;es<textarea name="observacoes" rows="3"></textarea></label>
+            <div class="form-actions">
+              <button type="submit">Salvar plano</button>
+              <p id="planoMessage" class="message"></p>
+            </div>
+          </form>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Unidade</th>
+                  <th>Categoria</th>
+                  <th>Prioridade</th>
+                  <th>Status</th>
+                  <th>A&ccedil;&atilde;o</th>
+                </tr>
+              </thead>
+              <tbody id="planoRows"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="relatoriosPanel" class="panel is-hidden">
+          <div class="panel-head">
+            <div>
+              <h2>Relat&oacute;rios</h2>
+              <p class="muted">Consulta consolidada dos registros preenchidos e exporta&ccedil;&atilde;o para Excel.</p>
+            </div>
+            <div class="panel-actions">
+              <button id="exportOsButton" class="secondary" type="button">Exportar O.S.</button>
+              <button id="exportPlanoButton" class="secondary" type="button">Exportar plano</button>
+            </div>
+          </div>
+
+          <div class="report-filter">
+            <label>
+              Buscar nos relat&oacute;rios
+              <input id="reportSearch" type="search" placeholder="Digite unidade, status, categoria...">
+            </label>
+          </div>
+
+          <div class="report-stack">
+            <article class="report-card">
+              <h3>Controle de O.S.</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>O.S.</th>
+                      <th>Data</th>
+                      <th>Unidade</th>
+                      <th>Solicitante</th>
+                      <th>Categoria</th>
+                      <th>Prioridade</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="osReportRows"></tbody>
+                </table>
+              </div>
+            </article>
+
+            <article class="report-card">
+              <h3>Plano estrat&eacute;gico</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Item</th>
+                      <th>Unidade</th>
+                      <th>Pr&eacute;dio</th>
+                      <th>Categoria</th>
+                      <th>Prioridade</th>
+                      <th>Previs&atilde;o</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="planoReportRows"></tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
