@@ -52,6 +52,7 @@ let currentUser = null;
 let osData = [];
 let planoData = [];
 let pendingDelete = null;
+let demoMode = localStorage.getItem('avanfisio_demo_logged') === 'true';
 
 const osFields = [
   'id',
@@ -130,6 +131,10 @@ function readLocalRecords(key) {
 
 function writeLocalRecords(key, records) {
   localStorage.setItem(key, JSON.stringify(records));
+}
+
+function isDemoLogin(username, password) {
+  return username.trim().toLowerCase() === DEMO_USER && password === DEMO_PASSWORD;
 }
 
 function seedLocalData() {
@@ -500,7 +505,7 @@ function requestDelete(type, id) {
 }
 
 async function validateDeleteCredentials(username, password) {
-  if (!clientReady) {
+  if (demoMode || !clientReady) {
     return username.trim().toLowerCase() === DEMO_USER && password === DEMO_PASSWORD;
   }
 
@@ -512,7 +517,7 @@ async function validateDeleteCredentials(username, password) {
 }
 
 async function deleteRecord(type, id) {
-  if (!clientReady) {
+  if (demoMode || !clientReady) {
     const key = type === 'os' ? 'avanfisio_controle_os' : 'avanfisio_plano_estrategico';
     const records = readLocalRecords(key).filter((record) => record.id !== id);
     writeLocalRecords(key, records);
@@ -543,8 +548,8 @@ async function deleteRecord(type, id) {
 }
 
 async function refreshSession() {
-  if (!clientReady) {
-    if (localStorage.getItem('avanfisio_demo_logged') !== 'true') return;
+  if (demoMode || !clientReady) {
+    if (!demoMode) return;
     currentUser = { id: 'demo-andre', email: 'andre' };
     loginView.classList.add('is-hidden');
     appView.classList.remove('is-hidden');
@@ -568,7 +573,7 @@ async function refreshSession() {
 }
 
 async function loadOs() {
-  if (!clientReady) {
+  if (demoMode || !clientReady) {
     osData = readLocalRecords('avanfisio_controle_os');
     osRows.innerHTML = osData.map((record) => `
       <tr>
@@ -617,7 +622,7 @@ async function loadOs() {
 }
 
 async function loadPlano() {
-  if (!clientReady) {
+  if (demoMode || !clientReady) {
     planoData = readLocalRecords('avanfisio_plano_estrategico');
     planoRows.innerHTML = planoData.map((record) => `
       <tr>
@@ -669,15 +674,11 @@ loginForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   setMessage(loginMessage, 'Entrando...');
 
-  if (!clientReady) {
-    const username = loginForm.email.value.trim().toLowerCase();
-    const password = loginForm.password.value;
+  const username = loginForm.email.value.trim().toLowerCase();
+  const password = loginForm.password.value;
 
-    if (username !== DEMO_USER || password !== DEMO_PASSWORD) {
-      setMessage(loginMessage, 'Usuario ou senha invalido.', true);
-      return;
-    }
-
+  if (isDemoLogin(username, password)) {
+    demoMode = true;
     localStorage.setItem('avanfisio_demo_logged', 'true');
     loginForm.reset();
     setMessage(loginMessage, '');
@@ -685,9 +686,14 @@ loginForm.addEventListener('submit', async (event) => {
     return;
   }
 
-  const email = loginForm.email.value;
-  const password = loginForm.password.value;
-  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if (!clientReady) {
+    if (!isDemoLogin(username, password)) {
+      setMessage(loginMessage, 'Usuario ou senha invalido.', true);
+      return;
+    }
+  }
+
+  const { error } = await supabaseClient.auth.signInWithPassword({ email: username, password });
 
   if (error) {
     setMessage(loginMessage, error.message, true);
@@ -700,11 +706,11 @@ loginForm.addEventListener('submit', async (event) => {
 });
 
 logoutButton.addEventListener('click', async () => {
-  if (clientReady) {
+  if (clientReady && !demoMode) {
     await supabaseClient.auth.signOut();
-  } else {
-    localStorage.removeItem('avanfisio_demo_logged');
   }
+  localStorage.removeItem('avanfisio_demo_logged');
+  demoMode = false;
   currentUser = null;
   appView.classList.add('is-hidden');
   loginView.classList.remove('is-hidden');
@@ -812,7 +818,7 @@ osForm.addEventListener('submit', async (event) => {
   const payload = formToObject(osForm, osFields);
   payload.created_by = currentUser.id;
 
-  if (!clientReady) {
+  if (demoMode || !clientReady) {
     const records = readLocalRecords('avanfisio_controle_os');
     if (id) {
       const index = records.findIndex((record) => record.id === id);
@@ -852,7 +858,7 @@ planoForm.addEventListener('submit', async (event) => {
   const payload = formToObject(planoForm, planoFields);
   payload.created_by = currentUser.id;
 
-  if (!clientReady) {
+  if (demoMode || !clientReady) {
     const records = readLocalRecords('avanfisio_plano_estrategico');
     if (id) {
       const index = records.findIndex((record) => record.id === id);
