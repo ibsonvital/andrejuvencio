@@ -30,16 +30,10 @@ const planoReportRows = document.querySelector('#planoReportRows');
 const exportOsButton = document.querySelector('#exportOsButton');
 const exportPlanoButton = document.querySelector('#exportPlanoButton');
 const exportAllButton = document.querySelector('#exportAllButton');
-const dashboardRows = document.querySelector('#dashboardRows');
-const typeSummary = document.querySelector('#typeSummary');
-const prioritySummary = document.querySelector('#prioritySummary');
-const statusDonut = document.querySelector('#statusDonut');
-const statusDonutValue = document.querySelector('#statusDonutValue');
-const typeDonut = document.querySelector('#typeDonut');
-const progressTrend = document.querySelector('#progressTrend');
-const nextDueRows = document.querySelector('#nextDueRows');
-const criticalRows = document.querySelector('#criticalRows');
-const doneRows = document.querySelector('#doneRows');
+const osDoneMetric = document.querySelector('#osDoneMetric');
+const osLateMetric = document.querySelector('#osLateMetric');
+const planoDoneMetric = document.querySelector('#planoDoneMetric');
+const planoLateMetric = document.querySelector('#planoLateMetric');
 const deleteDialog = document.querySelector('#deleteDialog');
 const deleteConfirmForm = document.querySelector('#deleteConfirmForm');
 const deleteDialogText = document.querySelector('#deleteDialogText');
@@ -161,6 +155,7 @@ function countBy(records, field) {
 
 function renderSummaryList(elementId, summary) {
   const element = document.querySelector(`#${elementId}`);
+  if (!element) return;
   const entries = Object.entries(summary).sort((a, b) => b[1] - a[1]).slice(0, 6);
   const max = Math.max(...entries.map((entry) => entry[1]), 1);
 
@@ -179,6 +174,7 @@ function renderSummaryList(elementId, summary) {
 
 function renderBarSummary(elementId, summary) {
   const element = document.querySelector(`#${elementId}`);
+  if (!element) return;
   const entries = Object.entries(summary).sort((a, b) => b[1] - a[1]).slice(0, 8);
   const max = Math.max(...entries.map((entry) => entry[1]), 1);
 
@@ -282,16 +278,17 @@ function renderMiniTable(element, records) {
 
 function renderSummary() {
   const allRecords = [...osData, ...planoData];
-  const unified = unifiedRecords();
-  const statuses = countBy(allRecords, 'status');
   const osStatuses = countBy(osData, 'status');
   const planoStatuses = countBy(planoData, 'status');
-  const units = countBy(unified, 'unit');
-  const types = countBy(unified, 'type');
-  const priorities = countBy(unified, 'priority');
+  const osUnits = countBy(osData, 'unidade');
+  const planoPriorities = countBy(planoData, 'prioridade');
   const osAndamento = osData.filter((record) => normalizeText(record.status).includes('ANDAMENTO')).length;
   const planoAndamento = planoData.filter((record) => normalizeText(record.status).includes('ANDAMENTO')).length;
-  const atrasados = allRecords.filter((record) => normalizeText(record.status).includes('ATRAS')).length;
+  const osAtrasados = osData.filter((record) => normalizeText(record.status).includes('ATRAS')).length;
+  const planoAtrasados = planoData.filter((record) => normalizeText(record.status).includes('ATRAS')).length;
+  const atrasados = osAtrasados + planoAtrasados;
+  const osConcluidos = osData.filter((record) => normalizeText(record.status).includes('CONCL')).length;
+  const planoConcluidos = planoData.filter((record) => normalizeText(record.status).includes('CONCL')).length;
   const concluidos = allRecords.filter((record) => normalizeText(record.status).includes('CONCL')).length;
 
   document.querySelector('#metricOsTotal').textContent = osData.length;
@@ -300,19 +297,14 @@ function renderSummary() {
   document.querySelector('#metricPlanoOpen').textContent = `${planoAndamento} em andamento`;
   document.querySelector('#metricEmAndamento').textContent = concluidos;
   document.querySelector('#metricAtrasados').textContent = atrasados;
-  renderSummaryList('statusSummary', statuses);
-  renderSummaryList('osStatusSummary', osStatuses);
-  renderSummaryList('planoStatusSummary', planoStatuses);
-  renderSummaryList('typeSummary', types);
-  renderBarSummary('unitSummary', units);
-  renderBarSummary('prioritySummary', priorities);
-  if (statusDonut && statusDonutValue) {
-    statusDonutValue.textContent = `${allRecords.length ? Math.round((concluidos / allRecords.length) * 100) : 0}%`;
-    renderDonut(statusDonut, statuses);
-  }
-  if (typeDonut) renderDonut(typeDonut, types);
-  if (progressTrend) renderTrend(unified);
-  renderDashboardTable(unified);
+  if (osDoneMetric) osDoneMetric.textContent = osConcluidos;
+  if (osLateMetric) osLateMetric.textContent = osAtrasados;
+  if (planoDoneMetric) planoDoneMetric.textContent = planoConcluidos;
+  if (planoLateMetric) planoLateMetric.textContent = planoAtrasados;
+  renderBarSummary('osStatusBars', osStatuses);
+  renderBarSummary('osUnitBars', osUnits);
+  renderBarSummary('planoStatusBars', planoStatuses);
+  renderBarSummary('planoPriorityBars', planoPriorities);
 }
 
 function renderDashboardTable(records) {

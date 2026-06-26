@@ -104,77 +104,30 @@
             </article>
           </div>
 
-          <div class="split-summary">
-            <article class="insight-panel">
-              <h3>Controle de O.S.</h3>
-              <div id="osStatusSummary" class="summary-list"></div>
-            </article>
-            <article class="insight-panel">
-              <h3>Plano estrat&eacute;gico</h3>
-              <div id="planoStatusSummary" class="summary-list"></div>
-            </article>
-          </div>
-
           <div class="project-grid">
             <article class="insight-panel project-card">
               <p class="eyebrow">Projeto 1</p>
               <h3>Planilha de Controle de O.S.</h3>
-              <p class="muted">Resumo separado da base operacional de ordens de servi&ccedil;o.</p>
-              <div id="unitSummary" class="summary-list bar-list"></div>
+              <div class="project-metrics">
+                <span><strong id="osDoneMetric">0</strong> conclu&iacute;das</span>
+                <span><strong id="osLateMetric">0</strong> atrasadas</span>
+              </div>
+              <h4>Status</h4>
+              <div id="osStatusBars" class="summary-list bar-list"></div>
+              <h4>Unidades</h4>
+              <div id="osUnitBars" class="summary-list bar-list"></div>
             </article>
             <article class="insight-panel project-card">
               <p class="eyebrow">Projeto 2</p>
               <h3>Plano Estrat&eacute;gico Avanfisio 2026</h3>
-              <p class="muted">Resumo separado das demandas estrat&eacute;gicas por unidade, prioridade e status.</p>
-              <div id="prioritySummary" class="summary-list bar-list"></div>
-            </article>
-            <article class="insight-panel project-card">
-              <h3>Status consolidado</h3>
-              <p class="muted">Vis&atilde;o executiva sem misturar a edi&ccedil;&atilde;o dos projetos.</p>
-              <div id="statusSummary" class="summary-list"></div>
-            </article>
-            <article class="insight-panel project-card">
-              <h3>Tipo de base</h3>
-              <p class="muted">Separando o que veio de O.S. e o que veio do plano.</p>
-              <div id="typeSummary" class="summary-list"></div>
-            </article>
-          </div>
-
-          <article class="report-card dashboard-table">
-            <h3>Banco de dados - obras e servi&ccedil;os</h3>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>C&oacute;digo</th>
-                    <th>Unidade</th>
-                    <th>Tipo</th>
-                    <th>Descri&ccedil;&atilde;o</th>
-                    <th>Categoria</th>
-                    <th>Respons&aacute;vel</th>
-                    <th>Prazo</th>
-                    <th>Avan&ccedil;o</th>
-                    <th>Status</th>
-                    <th>Prioridade</th>
-                  </tr>
-                </thead>
-                <tbody id="dashboardRows"></tbody>
-              </table>
-            </div>
-          </article>
-
-          <div class="dashboard-bottom">
-            <article class="report-card">
-              <h3>Pr&oacute;ximos vencimentos</h3>
-              <div id="nextDueRows" class="mini-table"></div>
-            </article>
-            <article class="report-card">
-              <h3>Obras cr&iacute;ticas</h3>
-              <div id="criticalRows" class="mini-table"></div>
-            </article>
-            <article class="report-card">
-              <h3>&Uacute;ltimas conclus&otilde;es</h3>
-              <div id="doneRows" class="mini-table"></div>
+              <div class="project-metrics">
+                <span><strong id="planoDoneMetric">0</strong> conclu&iacute;das</span>
+                <span><strong id="planoLateMetric">0</strong> atrasadas</span>
+              </div>
+              <h4>Status</h4>
+              <div id="planoStatusBars" class="summary-list bar-list"></div>
+              <h4>Prioridades</h4>
+              <div id="planoPriorityBars" class="summary-list bar-list"></div>
             </article>
           </div>
         </section>
