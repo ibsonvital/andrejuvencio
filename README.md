@@ -68,6 +68,14 @@ Depois disso, o login passa a ser o usuario e senha criados no Supabase.
 
 Atencao: a chave publishable ja foi colocada no `app.js`, mas ainda falta trocar `COLE_AQUI_A_URL_DO_SUPABASE` pela `Project URL` do Supabase.
 
+Projeto Supabase atual:
+
+```text
+https://qwxkhilrqmmcfzrrolao.supabase.co
+```
+
+A `SUPABASE_ANON_KEY` precisa ser a chave `anon/public` desse mesmo projeto, em `Project Settings > API`.
+
 ## Power BI
 
 No Power BI, conecte no banco Postgres do Supabase e use as views:
