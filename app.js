@@ -127,18 +127,24 @@ function writeLocalRecords(key, records) {
   localStorage.setItem(key, JSON.stringify(records));
 }
 
+function mergeSeedRecords(key, seedRecords) {
+  const currentRecords = readLocalRecords(key);
+  const currentIds = new Set(currentRecords.map((record) => record.id));
+  const missingSeedRecords = seedRecords.filter((record) => !currentIds.has(record.id));
+
+  if (missingSeedRecords.length) {
+    writeLocalRecords(key, [...currentRecords, ...missingSeedRecords]);
+  }
+}
+
 function isDemoLogin(username, password) {
   return username.trim().toLowerCase() === DEMO_USER && password === DEMO_PASSWORD;
 }
 
 function seedLocalData() {
   if (!window.AVANFISIO_SEED_DATA) return;
-  if (!localStorage.getItem('avanfisio_controle_os')) {
-    writeLocalRecords('avanfisio_controle_os', window.AVANFISIO_SEED_DATA.controle_os ?? []);
-  }
-  if (!localStorage.getItem('avanfisio_plano_estrategico')) {
-    writeLocalRecords('avanfisio_plano_estrategico', window.AVANFISIO_SEED_DATA.plano_estrategico ?? []);
-  }
+  mergeSeedRecords('avanfisio_controle_os', window.AVANFISIO_SEED_DATA.controle_os ?? []);
+  mergeSeedRecords('avanfisio_plano_estrategico', window.AVANFISIO_SEED_DATA.plano_estrategico ?? []);
 }
 
 function normalizeText(value) {
