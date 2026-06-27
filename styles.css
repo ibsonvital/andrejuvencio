@@ -417,6 +417,10 @@ body[data-theme="dark"] .tabs {
   gap: 14px;
 }
 
+.quick-filter {
+  max-width: 520px;
+}
+
 .table-wrap {
   overflow-x: auto;
   border: 1px solid var(--line);

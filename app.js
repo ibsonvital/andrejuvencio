@@ -19,11 +19,13 @@ const osForm = document.querySelector('#osForm');
 const osRows = document.querySelector('#osRows');
 const osMessage = document.querySelector('#osMessage');
 const newOsButton = document.querySelector('#newOsButton');
+const osSearch = document.querySelector('#osSearch');
 
 const planoForm = document.querySelector('#planoForm');
 const planoRows = document.querySelector('#planoRows');
 const planoMessage = document.querySelector('#planoMessage');
 const newPlanoButton = document.querySelector('#newPlanoButton');
+const planoSearch = document.querySelector('#planoSearch');
 const reportSearch = document.querySelector('#reportSearch');
 const osReportRows = document.querySelector('#osReportRows');
 const planoReportRows = document.querySelector('#planoReportRows');
@@ -342,6 +344,50 @@ function matchesReportSearch(record, term) {
   return Object.values(record).some((value) => normalizeText(value).includes(term));
 }
 
+function renderOsRows() {
+  const term = normalizeText(osSearch?.value);
+  const filteredRows = osData.filter((record) => matchesReportSearch(record, term));
+
+  osRows.innerHTML = filteredRows.length
+    ? filteredRows.map((record) => `
+      <tr>
+        <td>${escapeText(record.numero_os)}</td>
+        <td>${escapeText(record.unidade)}</td>
+        <td>${escapeText(record.categoria)}</td>
+        <td>${escapeText(record.prioridade)}</td>
+        <td>${escapeText(record.status)}</td>
+        <td>${escapeText(formatProgress(record.percentual_avanco))}</td>
+        <td class="row-actions">
+          <button class="secondary" data-edit-os="${record.id}" type="button">Editar</button>
+          <button class="danger subtle" data-delete-os="${record.id}" type="button">Apagar</button>
+        </td>
+      </tr>
+    `).join('')
+    : '<tr><td colspan="7">Nenhum registro encontrado.</td></tr>';
+}
+
+function renderPlanoRows() {
+  const term = normalizeText(planoSearch?.value);
+  const filteredRows = planoData.filter((record) => matchesReportSearch(record, term));
+
+  planoRows.innerHTML = filteredRows.length
+    ? filteredRows.map((record) => `
+      <tr>
+        <td>${escapeText(record.item)}</td>
+        <td>${escapeText(record.unidade)}</td>
+        <td>${escapeText(record.categoria)}</td>
+        <td>${escapeText(record.prioridade)}</td>
+        <td>${escapeText(record.status)}</td>
+        <td>${escapeText(formatProgress(record.percentual_avanco))}</td>
+        <td class="row-actions">
+          <button class="secondary" data-edit-plano="${record.id}" type="button">Editar</button>
+          <button class="danger subtle" data-delete-plano="${record.id}" type="button">Apagar</button>
+        </td>
+      </tr>
+    `).join('')
+    : '<tr><td colspan="7">Nenhum registro encontrado.</td></tr>';
+}
+
 function renderReports() {
   const term = normalizeText(reportSearch?.value);
   const filteredOs = osData.filter((record) => matchesReportSearch(record, term));
@@ -573,20 +619,7 @@ async function refreshSession() {
 async function loadOs() {
   if (demoMode || !clientReady) {
     osData = readLocalRecords('avanfisio_controle_os');
-    osRows.innerHTML = osData.map((record) => `
-      <tr>
-        <td>${escapeText(record.numero_os)}</td>
-        <td>${escapeText(record.unidade)}</td>
-        <td>${escapeText(record.categoria)}</td>
-        <td>${escapeText(record.prioridade)}</td>
-        <td>${escapeText(record.status)}</td>
-        <td>${escapeText(formatProgress(record.percentual_avanco))}</td>
-        <td class="row-actions">
-          <button class="secondary" data-edit-os="${record.id}" type="button">Editar</button>
-          <button class="danger subtle" data-delete-os="${record.id}" type="button">Apagar</button>
-        </td>
-      </tr>
-    `).join('');
+    renderOsRows();
     renderDashboard();
     return;
   }
@@ -602,40 +635,14 @@ async function loadOs() {
   }
 
   osData = data ?? [];
-  osRows.innerHTML = osData.map((record) => `
-    <tr>
-      <td>${escapeText(record.numero_os)}</td>
-      <td>${escapeText(record.unidade)}</td>
-      <td>${escapeText(record.categoria)}</td>
-      <td>${escapeText(record.prioridade)}</td>
-      <td>${escapeText(record.status)}</td>
-      <td>${escapeText(formatProgress(record.percentual_avanco))}</td>
-      <td class="row-actions">
-        <button class="secondary" data-edit-os="${record.id}" type="button">Editar</button>
-        <button class="danger subtle" data-delete-os="${record.id}" type="button">Apagar</button>
-      </td>
-    </tr>
-  `).join('');
+  renderOsRows();
   renderDashboard();
 }
 
 async function loadPlano() {
   if (demoMode || !clientReady) {
     planoData = readLocalRecords('avanfisio_plano_estrategico');
-    planoRows.innerHTML = planoData.map((record) => `
-      <tr>
-        <td>${escapeText(record.item)}</td>
-        <td>${escapeText(record.unidade)}</td>
-        <td>${escapeText(record.categoria)}</td>
-        <td>${escapeText(record.prioridade)}</td>
-        <td>${escapeText(record.status)}</td>
-        <td>${escapeText(formatProgress(record.percentual_avanco))}</td>
-        <td class="row-actions">
-          <button class="secondary" data-edit-plano="${record.id}" type="button">Editar</button>
-          <button class="danger subtle" data-delete-plano="${record.id}" type="button">Apagar</button>
-        </td>
-      </tr>
-    `).join('');
+    renderPlanoRows();
     renderDashboard();
     return;
   }
@@ -651,20 +658,7 @@ async function loadPlano() {
   }
 
   planoData = data ?? [];
-  planoRows.innerHTML = planoData.map((record) => `
-    <tr>
-      <td>${escapeText(record.item)}</td>
-      <td>${escapeText(record.unidade)}</td>
-      <td>${escapeText(record.categoria)}</td>
-      <td>${escapeText(record.prioridade)}</td>
-      <td>${escapeText(record.status)}</td>
-      <td>${escapeText(formatProgress(record.percentual_avanco))}</td>
-      <td class="row-actions">
-        <button class="secondary" data-edit-plano="${record.id}" type="button">Editar</button>
-        <button class="danger subtle" data-delete-plano="${record.id}" type="button">Apagar</button>
-      </td>
-    </tr>
-  `).join('');
+  renderPlanoRows();
   renderDashboard();
 }
 
@@ -729,6 +723,8 @@ themeToggle.addEventListener('click', () => {
 });
 
 reportSearch.addEventListener('input', renderReports);
+osSearch.addEventListener('input', renderOsRows);
+planoSearch.addEventListener('input', renderPlanoRows);
 exportOsButton.addEventListener('click', exportOs);
 exportPlanoButton.addEventListener('click', exportPlano);
 exportAllButton.addEventListener('click', exportAll);
