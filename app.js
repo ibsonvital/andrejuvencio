@@ -2,6 +2,9 @@ const SUPABASE_URL = 'https://qlaukoinddghygpqromk.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_XkyUMK06RemURsFy-aVDTw_IZ8HTsPS';
 const DEMO_USER = 'andre';
 const DEMO_PASSWORD = '123456';
+const SUPABASE_USER_BY_LOGIN = {
+  andre: 'andre@avanfisio.local',
+};
 
 const clientReady = SUPABASE_URL.startsWith('http') && SUPABASE_ANON_KEY.length > 40;
 const supabaseClient = clientReady ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
@@ -48,7 +51,7 @@ let currentUser = null;
 let osData = [];
 let planoData = [];
 let pendingDelete = null;
-let demoMode = localStorage.getItem('avanfisio_demo_logged') === 'true';
+let demoMode = !clientReady && localStorage.getItem('avanfisio_demo_logged') === 'true';
 
 const osFields = [
   'id',
@@ -141,6 +144,11 @@ function mergeSeedRecords(key, seedRecords) {
 
 function isDemoLogin(username, password) {
   return username.trim().toLowerCase() === DEMO_USER && password === DEMO_PASSWORD;
+}
+
+function supabaseEmailForLogin(username) {
+  const normalized = username.trim().toLowerCase();
+  return SUPABASE_USER_BY_LOGIN[normalized] ?? normalized;
 }
 
 function seedLocalData() {
@@ -554,7 +562,7 @@ async function validateDeleteCredentials(username, password) {
   }
 
   const { error } = await supabaseClient.auth.signInWithPassword({
-    email: username.trim(),
+    email: supabaseEmailForLogin(username),
     password,
   });
   return !error;
@@ -669,7 +677,7 @@ loginForm.addEventListener('submit', async (event) => {
   const username = loginForm.email.value.trim().toLowerCase();
   const password = loginForm.password.value;
 
-  if (isDemoLogin(username, password)) {
+  if (!clientReady && isDemoLogin(username, password)) {
     demoMode = true;
     localStorage.setItem('avanfisio_demo_logged', 'true');
     loginForm.reset();
@@ -685,10 +693,13 @@ loginForm.addEventListener('submit', async (event) => {
     }
   }
 
-  const { error } = await supabaseClient.auth.signInWithPassword({ email: username, password });
+  const { error } = await supabaseClient.auth.signInWithPassword({
+    email: supabaseEmailForLogin(username),
+    password,
+  });
 
   if (error) {
-    setMessage(loginMessage, error.message, true);
+    setMessage(loginMessage, 'Usuario ainda nao existe no Supabase ou senha invalida.', true);
     return;
   }
 

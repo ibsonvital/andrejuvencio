@@ -11,7 +11,14 @@ Usuario: andre
 Senha: 123456
 ```
 
-Nesse modo demonstracao, os registros ficam salvos somente no navegador. Para virar sistema real com banco de dados e Power BI, configure o Supabase no `app.js`.
+Com o Supabase configurado, crie em `Authentication > Users` este usuario:
+
+```text
+Email: andre@avanfisio.local
+Senha: 123456
+```
+
+O site continua aceitando `andre / 123456`, mas entra no Supabase usando esse e-mail e salva direto no banco.
 
 ## Funcoes do sistema
 
